@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TeepOEE – Gestão à Vista</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --panel: #ffffff;
+    --panel2: #f8fafc;
+    --border: #dde3ec;
+    --accent: #0066cc;
+    --accent2: #00aa55;
+    --warn: #e05a00;
+    --danger: #cc1133;
+    --gold: #b8860b;
+    --text: #1a2433;
+    --muted: #6b7a90;
+    --green: #1a9e5c;
+    --yellow: #c47d00;
+    --red: #cc1133;
+    --orange: #e05a00;
+    --card-blue: #ffffff;
+    --card-green: #f0faf4;
+    --glow: 0 2px 12px rgba(0,102,204,0.10);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent), #0066ff);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+  .logo-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: -2px;
+  }
+
+  .header-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,102,204,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 8px;
+  }
+  .filter-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.4; transform:scale(0.8); }
+  }
+  .clock {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  /* BREADCRUMB */
+  .breadcrumb {
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    background: #eef2f7;
+  }
+  .bc-item {
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bc-item:hover { color: var(--accent); }
+  .bc-item.active { color: var(--text); font-weight: 600; }
+  .bc-sep { color: #bbc5d4; font-size: 16px; }
+  .bc-icon { font-size: 14px; }
+
+  /* LEVEL TITLE */
+  .level-header {
+    padding: 20px 24px 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .level-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+  .level-count {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* GRID */
+  .grid {
+    padding: 0 24px 24px;
+    display: grid;
+    gap: 16px;
+  }
+  .grid-units { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .grid-sectors { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .grid-machines { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+  /* CARDS */
+  .card {
+    background: var(--card-blue);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,102,204,0.12);
+  }
+  .card.sector { background: var(--card-green); }
+  .card.machine { background: #f5f8ff; }
+
+  .card-header {
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-badge {
+    background: rgba(0,102,204,0.08);
+    border: 1px solid rgba(0,102,204,0.2);
+    color: var(--accent);
+    font-size: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* OEE PANEL */
+  .oee-panel {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #f4f7fb;
+  }
+  .turno-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .oee-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .oee-item {
+    border-radius: 5px;
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .oee-item-label {
+    font-size: 9px;
+    color: #555e70;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .oee-item-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .oee-yellow { background: rgba(196,125,0,0.08); border: 1px solid rgba(196,125,0,0.25); }
+  .oee-yellow .oee-item-val { color: var(--yellow); }
+  .oee-green { background: rgba(26,158,92,0.08); border: 1px solid rgba(26,158,92,0.25); }
+  .oee-green .oee-item-val { color: var(--green); }
+  .oee-red { background: rgba(204,17,51,0.07); border: 1px solid rgba(204,17,51,0.2); }
+  .oee-red .oee-item-val { color: var(--red); }
+  .oee-gold { background: rgba(184,134,11,0.07); border: 1px solid rgba(184,134,11,0.2); }
+  .oee-gold .oee-item-val { color: var(--gold); }
+
+  /* KPI TABLE */
+  .kpi-table {
+    padding: 12px 16px;
+  }
+  .kpi-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(180,195,215,0.4);
+  }
+  .kpi-row:last-child { border-bottom: none; }
+  .kpi-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  .kpi-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .kpi-val.green { color: var(--green); }
+  .kpi-val.red { color: var(--red); }
+  .kpi-val.blue { color: var(--accent); }
+  .kpi-val.warn { color: var(--warn); }
+
+  /* MACHINE STATUS BADGE */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .status-running { background: rgba(26,158,92,0.1); color: #157a46; border: 1px solid rgba(26,158,92,0.3); }
+  .status-stopped { background: rgba(204,17,51,0.1); color: var(--red); border: 1px solid rgba(204,17,51,0.3); }
+  .status-setup { background: rgba(224,90,0,0.1); color: var(--orange); border: 1px solid rgba(224,90,0,0.3); }
+  .status-offline { background: rgba(100,116,139,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+  .machine-code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--orange);
+    background: rgba(224,90,0,0.08);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid rgba(224,90,0,0.2);
+  }
+
+  /* MINI PROGRESS BAR */
+  .mini-bar-wrap { margin-top: 6px; }
+  .mini-bar-label { font-size: 9px; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .mini-bar-track { height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+  /* BACK BTN */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,102,204,0.07);
+    border: 1px solid rgba(0,102,204,0.2);
+    color: var(--accent);
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0 24px 16px;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 600;
+  }
+  .back-btn:hover { background: rgba(0,102,204,0.14); }
+
+  /* SUMMARY BAR */
+  .summary-bar {
+    display: flex;
+    gap: 16px;
+    padding: 12px 24px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px;
+    padding: 8px 14px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .summary-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .summary-lbl { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  /* TRANSITION */
+  .view { display:none; animation: fadeIn 0.3s ease; }
+  .view.active { display:block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius:3px; }
+
+  .update-info {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">T</div>
+    <div>
+      <div class="logo-text">TeepOEE</div>
+      <div class="logo-sub">Gestão à Vista</div>
+    </div>
+  </div>
+
+  <div class="header-center">
+    <span class="filter-label">Filtro:</span>
+    <button class="filter-btn" onclick="setFilter(1)">1h</button>
+    <button class="filter-btn active" onclick="setFilter(2)">2h</button>
+    <button class="filter-btn" onclick="setFilter(4)">4h</button>
+    <button class="filter-btn" onclick="setFilter(8)">8h</button>
+    <button class="filter-btn" onclick="setFilter(12)">12h</button>
+  </div>
+
+  <div class="header-right">
+    <div class="update-info" id="lastUpdate">Atualizado: --:--:--</div>
+    <div class="live-indicator"><div class="live-dot"></div>AO VIVO</div>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb" id="breadcrumb">
+  <span class="bc-item active" onclick="goLevel(1)"><span class="bc-icon">🏭</span> Unidades</span>
+</div>
+
+<!-- SUMMARY BAR -->
+<div class="summary-bar" id="summaryBar">
+  <div class="summary-item"><div class="summary-val green" id="sum-tprod">--:--:--</div><div class="summary-lbl">T. Produção</div></div>
+  <div class="summary-item"><div class="summary-val red" id="sum-tpar">--:--:--</div><div class="summary-lbl">T. Paradas</div></div>
+  <div class="summary-item"><div class="summary-val blue" id="sum-ops">---</div><div class="summary-lbl">Ops Apontadas</div></div>
+  <div class="summary-item"><div class="summary-val" id="sum-itens">-----</div><div class="summary-lbl">Total Itens</div></div>
+  <div class="summary-item"><div class="summary-val warn" id="sum-ref">--</div><div class="summary-lbl">Refugos</div></div>
+</div>
+
+<!-- VIEW 1: UNITS -->
+<div class="view active" id="view-units">
+  <div class="level-header">
+    <div class="level-title">Unidades</div>
+    <div class="level-count" id="unit-count"></div>
+  </div>
+  <div class="grid grid-units" id="units-grid"></div>
+</div>
+
+<!-- VIEW 2: SECTORS -->
+<div class="view" id="view-sectors">
+  <button class="back-btn" onclick="goLevel(1)">← Voltar para Unidades</button>
+  <div class="level-header">
+    <div class="level-title" id="sector-title">Setores</div>
+    <div class="level-count" id="sector-count"></div>
+  </div>
+  <div class="grid grid-sectors" id="sectors-grid"></div>
+</div>
+
+<!-- VIEW 3: MACHINES -->
+<div class="view" id="view-machines">
+  <button class="back-btn" onclick="goLevel(2)">← Voltar para Setores</button>
+  <div class="level-header">
+    <div class="level-title" id="machine-title">Máquinas</div>
+    <div class="level-count" id="machine-count"></div>
+  </div>
+  <div class="grid grid-machines" id="machines-grid"></div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const DATA = {
+  units: [
+    { id:'u1', name:'Implementos', code:'02', sectors:['s1','s2','s3','s4'] },
+    { id:'u2', name:'Indústria', code:'01', sectors:['s1','s2','s5'] },
+    { id:'u3', name:'Votuporanga 4', code:'16', sectors:['s1','s3','s4'] },
+    { id:'u4', name:'Roseira', code:'17', sectors:['s2','s3'] },
+    { id:'u5', name:'Rio Preto I', code:'03', sectors:['s1','s2','s3','s4','s5'] },
+    { id:'u6', name:'Rio Preto II', code:'12', sectors:['s1','s4'] },
+    { id:'u7', name:'Mirassol 1', code:'38', sectors:['s2','s3','s5'] },
+    { id:'u8', name:'Mirassol 2', code:'45', sectors:['s1','s2','s3'] },
+  ],
+  sectors: {
+    s1: { name:'Dobradeiras / Prensas', machines:['PRH111A','PRH111B','PRH243','PRH243B','PRH275','PRH293'] },
+    s2: { name:'Laser', machines:['LAS001','LAS002','LAS003'] },
+    s3: { name:'Mont. Gabaritos', machines:['GAB001','GAB002','GAB003','GAB004'] },
+    s4: { name:'Perfiladeiras', machines:['PRF001','PRF002'] },
+    s5: { name:'Robôs', machines:['ROB01','ROB02','ROB03','ROB04','ROB05'] },
+  },
+  machines: {
+    PRH111A:{ name:'PRENSA HIDRÁULICA', status:'running', oee:244, perf:324, disp:75, qual:99 },
+    PRH111B:{ name:'PRENSA HIDRÁULICA', status:'offline', oee:0, perf:0, disp:0, qual:0 },
+    PRH243: { name:'PRENSA HIDRÁULICA', status:'stopped', oee:0, perf:66, disp:0, qual:100 },
+    PRH243B:{ name:'PRENSA HIDRÁULICA', status:'stopped', oee:0, perf:0, disp:0, qual:0 },
+    PRH275: { name:'ROBÔ 11', status:'running', oee:18, perf:24, disp:74, qual:100 },
+    PRH293: { name:'PRENSA HIDRÁULICA', status:'running', oee:78, perf:109, disp:71, qual:100 },
+    LAS001: { name:'LASER FIBRA', status:'running', oee:85, perf:102, disp:88, qual:98 },
+    LAS002: { name:'LASER CO2', status:'running', oee:76, perf:91, disp:79, qual:99 },
+    LAS003: { name:'LASER FIBRA', status:'setup', oee:45, perf:60, disp:72, qual:97 },
+    GAB001: { name:'MONTAGEM A', status:'running', oee:91, perf:98, disp:95, qual:100 },
+    GAB002: { name:'MONTAGEM B', status:'running', oee:88, perf:95, disp:90, qual:100 },
+    GAB003: { name:'MONTAGEM C', status:'stopped', oee:0, perf:0, disp:0, qual:0 },
+    GAB004: { name:'MONTAGEM D', status:'running', oee:70, perf:82, disp:78, qual:99 },
+    PRF001: { name:'PERFILADEIRA 01', status:'running', oee:65, perf:78, disp:70, qual:98 },
+    PRF002: { name:'PERFILADEIRA 02', status:'running', oee:72, perf:85, disp:74, qual:100 },
+    ROB01:  { name:'ROBÔ 01', status:'running', oee:51, perf:107, disp:47, qual:100 },
+    ROB02:  { name:'ROBÔ 02', status:'running', oee:36, perf:484, disp:7, qual:100 },
+    ROB03:  { name:'ROBÔ 03', status:'running', oee:27, perf:87, disp:32, qual:100 },
+    ROB04:  { name:'ROBÔ 04', status:'setup', oee:65, perf:114, disp:59, qual:98 },
+    ROB05:  { name:'ROBÔ 05', status:'running', oee:36, perf:84, disp:42, qual:100 },
+  }
+};
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let filterHours = 2;
+let currentUnit = null;
+let currentSector = null;
+let currentLevel = 1;
+
+// ─── RANDOM KPI ─────────────────────────────────────────────────────────────
+function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function genKPI(scale=1){
+  const tp = rnd(6*3600*scale, 10*3600*scale);
+  const tpar = rnd(1*3600*scale, 4*3600*scale);
+  const ops = rnd(20*scale, 60*scale);
+  const itens = rnd(800*scale, 2000*scale);
+  const ref = rnd(5*scale, 30*scale);
+  return { tp, tpar, ops: Math.round(ops), itens: Math.round(itens), ref: Math.round(ref) };
+}
+
+function fmtTime(secs){
+  const h = Math.floor(secs/3600).toString().padStart(2,'0');
+  const m = Math.floor((secs%3600)/60).toString().padStart(2,'0');
+  const s = (secs%60).toString().padStart(2,'0');
+  return `${h}:${m}:${s}`;
+}
+function fmtNum(n){ return n.toLocaleString('pt-BR'); }
+
+function oeeColor(v){
+  if(v>=85) return 'var(--green)';
+  if(v>=65) return 'var(--yellow)';
+  return 'var(--red)';
+}
+function oeeClass(v){
+  if(v>=85) return 'oee-green';
+  if(v>=65) return 'oee-yellow';
+  return 'oee-red';
+}
+
+// ─── RENDER UNIT CARD ────────────────────────────────────────────────────────
+function renderUnitCard(unit){
+  const k = genKPI(unit.sectors.length);
+  const oee = rnd(55,85), perf = rnd(90,130), disp = rnd(55,80), qual = rnd(92,100);
+  return `
+  <div class="card" onclick="drillUnit('${unit.id}')">
+    <div class="card-header">
+      <div class="card-name">🏭 ${unit.name}</div>
+      <div class="card-badge">${unit.sectors.length} setores</div>
+    </div>
+    <div class="oee-panel">
+      <div class="turno-label">─── Turno ───</div>
+      <div class="oee-row">
+        <div class="oee-item oee-yellow">
+          <span class="oee-item-label">OEE</span>
+          <span class="oee-item-val">${oee}%</span>
+        </div>
+        <div class="oee-item oee-green">
+          <span class="oee-item-label">PERFORMANCE</span>
+          <span class="oee-item-val">${perf}%</span>
+        </div>
+      </div>
+      <div class="oee-row">
+        <div class="oee-item oee-red">
+          <span class="oee-item-label">DISPONIB.</span>
+          <span class="oee-item-val">${disp}%</span>
+        </div>
+        <div class="oee-item oee-gold">
+          <span class="oee-item-label">QUALIDADE</span>
+          <span class="oee-item-val">${qual}%</span>
+        </div>
+      </div>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span>Eficiência geral</span><span style="color:${oeeColor(oee)}">${oee}%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${oee}%;background:${oeeColor(oee)}"></div></div>
+      </div>
+    </div>
+    <div class="kpi-table">
+      <div class="kpi-row"><span class="kpi-label">T.prod</span><span class="kpi-val green">${fmtTime(k.tp)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">T.paradas</span><span class="kpi-val red">${fmtTime(k.tpar)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Ops apont.</span><span class="kpi-val blue">${k.ops}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Tot. itens</span><span class="kpi-val">${fmtNum(k.itens)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Refugos</span><span class="kpi-val ${k.ref>20?'red':'warn'}">${k.ref}</span></div>
+    </div>
+  </div>`;
+}
+
+// ─── RENDER SECTOR CARD ──────────────────────────────────────────────────────
+function renderSectorCard(sid){
+  const sec = DATA.sectors[sid];
+  const k = genKPI(sec.machines.length * 0.5);
+  const oee = rnd(60,88), perf = rnd(95,130), disp = rnd(58,82), qual = rnd(94,100);
+  return `
+  <div class="card sector" onclick="drillSector('${sid}')">
+    <div class="card-header">
+      <div class="card-name">⚙️ ${sec.name}</div>
+      <div class="card-badge">${sec.machines.length} máquinas</div>
+    </div>
+    <div class="oee-panel">
+      <div class="turno-label">─── Turno ───</div>
+      <div class="oee-row">
+        <div class="oee-item oee-yellow">
+          <span class="oee-item-label">OEE</span>
+          <span class="oee-item-val">${oee}%</span>
+        </div>
+        <div class="oee-item oee-green">
+          <span class="oee-item-label">PERFORMANCE</span>
+          <span class="oee-item-val">${perf}%</span>
+        </div>
+      </div>
+      <div class="oee-row">
+        <div class="oee-item oee-red">
+          <span class="oee-item-label">DISPONIB.</span>
+          <span class="oee-item-val">${disp}%</span>
+        </div>
+        <div class="oee-item oee-gold">
+          <span class="oee-item-label">QUALIDADE</span>
+          <span class="oee-item-val">${qual}%</span>
+        </div>
+      </div>
+      <div class="mini-bar-wrap">
+        <div class="mini-bar-label"><span>Eficiência geral</span><span style="color:${oeeColor(oee)}">${oee}%</span></div>
+        <div class="mini-bar-track"><div class="mini-bar-fill" style="width:${oee}%;background:${oeeColor(oee)}"></div></div>
+      </div>
+    </div>
+    <div class="kpi-table">
+      <div class="kpi-row"><span class="kpi-label">T.prod</span><span class="kpi-val green">${fmtTime(k.tp)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">T.paradas</span><span class="kpi-val red">${fmtTime(k.tpar)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Ops apont.</span><span class="kpi-val blue">${k.ops}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Tot. itens</span><span class="kpi-val">${fmtNum(k.itens)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Refugos</span><span class="kpi-val ${k.ref>15?'red':'warn'}">${k.ref}</span></div>
+    </div>
+  </div>`;
+}
+
+// ─── RENDER MACHINE CARD ─────────────────────────────────────────────────────
+function renderMachineCard(mid){
+  const m = DATA.machines[mid];
+  const k = genKPI(0.3);
+  const statusMap = {
+    running:  { cls:'status-running', lbl:'● Executando' },
+    stopped:  { cls:'status-stopped', lbl:'■ Parado' },
+    setup:    { cls:'status-setup',   lbl:'◐ Setup/Prog.' },
+    offline:  { cls:'status-offline', lbl:'○ S/ Comunic.' },
+  };
+  const st = statusMap[m.status] || statusMap.offline;
+  const oee = m.status==='offline'?0:m.oee, perf=m.perf, disp=m.disp, qual=m.qual;
+  return `
+  <div class="card machine">
+    <div class="card-header">
+      <div style="display:flex;flex-direction:column;gap:3px;overflow:hidden">
+        <span class="machine-code">[${mid}]</span>
+        <span class="card-name" style="font-size:12px">${m.name}</span>
+      </div>
+      <span class="status-badge ${st.cls}">${st.lbl}</span>
+    </div>
+    <div class="oee-panel">
+      <div class="turno-label">─── Turno ───</div>
+      <div class="oee-row">
+        <div class="oee-item ${oeeClass(oee)}">
+          <span class="oee-item-label">OEE</span>
+          <span class="oee-item-val">${oee}%</span>
+        </div>
+        <div class="oee-item oee-green">
+          <span class="oee-item-label">PERF.</span>
+          <span class="oee-item-val">${perf}%</span>
+        </div>
+      </div>
+      <div class="oee-row">
+        <div class="oee-item oee-red">
+          <span class="oee-item-label">DISP.</span>
+          <span class="oee-item-val">${disp}%</span>
+        </div>
+        <div class="oee-item oee-gold">
+          <span class="oee-item-label">QUAL.</span>
+          <span class="oee-item-val">${qual}%</span>
+        </div>
+      </div>
+    </div>
+    <div class="kpi-table">
+      <div class="kpi-row"><span class="kpi-label">T.prod</span><span class="kpi-val green">${fmtTime(k.tp)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">T.paradas</span><span class="kpi-val red">${fmtTime(k.tpar)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Ops apont.</span><span class="kpi-val blue">${k.ops}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Tot. itens</span><span class="kpi-val">${fmtNum(k.itens)}</span></div>
+      <div class="kpi-row"><span class="kpi-label">Refugos</span><span class="kpi-val ${k.ref>8?'red':'warn'}">${k.ref}</span></div>
+    </div>
+  </div>`;
+}
+
+// ─── NAVIGATION ─────────────────────────────────────────────────────────────
+function setFilter(h){
+  filterHours = h;
+  document.querySelectorAll('.filter-btn').forEach(b=> b.classList.remove('active'));
+  event.target.classList.add('active');
+  refresh();
+}
+
+function drillUnit(uid){
+  currentUnit = DATA.units.find(u=>u.id===uid);
+  currentLevel = 2;
+  renderSectors();
+  showView('view-sectors');
+  updateBreadcrumb();
+}
+
+function drillSector(sid){
+  currentSector = { id:sid, ...DATA.sectors[sid] };
+  currentLevel = 3;
+  renderMachines();
+  showView('view-machines');
+  updateBreadcrumb();
+}
+
+function goLevel(l){
+  currentLevel = l;
+  if(l===1){ showView('view-units'); currentUnit=null; currentSector=null; }
+  if(l===2){ showView('view-sectors'); currentSector=null; }
+  updateBreadcrumb();
+}
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateBreadcrumb(){
+  const bc = document.getElementById('breadcrumb');
+  let html = `<span class="bc-item ${currentLevel===1?'active':''}" onclick="goLevel(1)"><span class="bc-icon">🏭</span> Unidades</span>`;
+  if(currentUnit){
+    html += `<span class="bc-sep">›</span><span class="bc-item ${currentLevel===2?'active':''}" onclick="goLevel(2)">⚙️ ${currentUnit.name}</span>`;
+  }
+  if(currentSector){
+    html += `<span class="bc-sep">›</span><span class="bc-item active">🔩 ${currentSector.name}</span>`;
+  }
+  bc.innerHTML = html;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderUnits(){
+  const g = document.getElementById('units-grid');
+  g.innerHTML = DATA.units.map(renderUnitCard).join('');
+  document.getElementById('unit-count').textContent = `${DATA.units.length} unidades · filtro: últimas ${filterHours}h`;
+  updateSummary();
+}
+
+function renderSectors(){
+  const g = document.getElementById('sectors-grid');
+  const sids = currentUnit.sectors;
+  g.innerHTML = sids.map(renderSectorCard).join('');
+  document.getElementById('sector-title').textContent = `Setores – ${currentUnit.name}`;
+  document.getElementById('sector-count').textContent = `${sids.length} setores · filtro: últimas ${filterHours}h`;
+  updateSummary();
+}
+
+function renderMachines(){
+  const g = document.getElementById('machines-grid');
+  const mids = currentSector.machines;
+  g.innerHTML = mids.map(renderMachineCard).join('');
+  document.getElementById('machine-title').textContent = `Máquinas – ${currentSector.name}`;
+  document.getElementById('machine-count').textContent = `${mids.length} máquinas · filtro: últimas ${filterHours}h`;
+  updateSummary();
+}
+
+function updateSummary(){
+  const scale = currentLevel===1?8:currentLevel===2?3:0.5;
+  const k = genKPI(scale);
+  document.getElementById('sum-tprod').textContent = fmtTime(k.tp);
+  document.getElementById('sum-tpar').textContent = fmtTime(k.tpar);
+  document.getElementById('sum-ops').textContent = fmtNum(k.ops);
+  document.getElementById('sum-itens').textContent = fmtNum(k.itens);
+  document.getElementById('sum-ref').textContent = k.ref;
+}
+
+function refresh(){
+  if(currentLevel===1) renderUnits();
+  else if(currentLevel===2) renderSectors();
+  else renderMachines();
+  const now = new Date();
+  document.getElementById('lastUpdate').textContent = `Atualizado: ${now.toLocaleTimeString('pt-BR')}`;
+}
+
+// ─── CLOCK ───────────────────────────────────────────────────────────────────
+function updateClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('pt-BR');
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+updateClock();
+setInterval(updateClock, 1000);
+renderUnits();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>
